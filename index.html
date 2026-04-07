@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corte's Learning Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0d14;
+  --surface:#13131f;
+  --card:#1a1a2e;
+  --border:#2a2a45;
+  --accent:#6c63ff;
+  --accent2:#ff6584;
+  --accent3:#43e97b;
+  --text:#f0f0ff;
+  --muted:#7b7b9d;
+  --radius:14px;
+}
+html,body{height:100%;font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+/* ── STARFIELD ── */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0.1;transform:scale(1)}50%{opacity:0.9;transform:scale(1.4)}}
+
+/* ── TOP NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 28px;height:60px;display:flex;align-items:center;gap:0;background:rgba(13,13,20,0.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;cursor:pointer;user-select:none;letter-spacing:-0.5px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);transition:transform 0.3s,background 0.3s}
+.logo:hover .logo-dot{transform:scale(1.5)}
+.logo-hint{font-size:11px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:400;margin-left:6px;opacity:0;transition:opacity 0.3s}
+.logo-hint.show{opacity:1}
+.nav-mid{flex:1;display:flex;justify-content:center;gap:4px}
+.nav-btn{padding:7px 18px;border-radius:30px;border:none;background:none;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Space Grotesk',sans-serif}
+.nav-btn:hover{color:var(--text);background:var(--card)}
+.nav-btn.active{color:var(--text);background:var(--accent)}
+#gamesNavBtn{display:none}
+.nav-right{display:flex;gap:10px;align-items:center;flex-shrink:0}
+
+/* ── PAGE WRAPPER ── */
+.page{display:none;padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.page.active{display:block;animation:pageIn 0.3s ease}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LEARN HERO ── */
+.learn-hero{padding:70px 24px 50px;text-align:center;position:relative}
+.learn-hero h1{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:16px}
+.learn-hero h1 span{color:var(--accent)}
+.learn-hero p{color:var(--muted);font-size:17px;max-width:480px;margin:0 auto 40px}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;max-width:1100px;margin:0 auto;padding:0 24px 60px}
+.subject-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+.subject-card::before{content:'';position:absolute;inset:0;background:var(--glow);opacity:0;transition:opacity 0.3s;border-radius:var(--radius)}
+.subject-card:hover{transform:translateY(-4px);border-color:var(--glow-border)}
+.subject-card:hover::before{opacity:0.07}
+.subject-card .icon{font-size:36px;margin-bottom:14px;display:block}
+.subject-card h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.subject-card p{font-size:13px;color:var(--muted);line-height:1.55}
+.subject-card .tag{display:inline-block;margin-top:14px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;background:var(--tag-bg);color:var(--tag-text)}
+
+/* ── QUIZ UI ── */
+#quizPage{background:var(--bg)}
+.quiz-wrap{max-width:680px;margin:0 auto;padding:40px 24px 80px}
+.quiz-back{background:none;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:30px;cursor:pointer;font-size:13px;font-family:'Space Grotesk',sans-serif;margin-bottom:32px;transition:all 0.2s}
+.quiz-back:hover{border-color:var(--accent);color:var(--accent)}
+.quiz-subject-label{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.quiz-progress-bar{height:4px;background:var(--border);border-radius:4px;margin-bottom:32px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width 0.4s ease}
+.quiz-q{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.quiz-hint{font-size:13px;color:var(--muted);margin-bottom:28px}
+.quiz-choices{display:flex;flex-direction:column;gap:12px;margin-bottom:28px}
+.choice-btn{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:16px 20px;text-align:left;color:var(--text);font-size:15px;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:14px}
+.choice-btn:hover:not(:disabled){border-color:var(--accent);background:#1e1e35;transform:translateX(4px)}
+.choice-btn .letter{width:28px;height:28px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all 0.2s}
+.choice-btn:hover:not(:disabled) .letter{background:var(--accent);color:#fff}
+.choice-btn.correct{border-color:#43e97b;background:rgba(67,233,123,0.08)}
+.choice-btn.correct .letter{background:#43e97b;color:#000}
+.choice-btn.wrong{border-color:#ff6584;background:rgba(255,101,132,0.08)}
+.choice-btn.wrong .letter{background:#ff6584;color:#fff}
+.choice-btn:disabled{cursor:default;transform:none}
+.quiz-feedback{padding:16px 20px;border-radius:12px;font-size:14px;line-height:1.6;margin-bottom:20px;display:none}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:rgba(67,233,123,0.1);border:1px solid rgba(67,233,123,0.3);color:#43e97b}
+.quiz-feedback.wrong{background:rgba(255,101,132,0.1);border:1px solid rgba(255,101,132,0.3);color:#ff6584}
+.quiz-next{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s;display:none}
+.quiz-next:hover{opacity:0.85}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 32px;text-align:center;display:none}
+.score-card.show{display:block}
+.score-num{font-family:'Syne',sans-serif;font-size:72px;font-weight:800;color:var(--accent);line-height:1}
+.score-label{font-size:16px;color:var(--muted);margin:8px 0 28px}
+.score-msg{font-size:20px;font-weight:700;margin-bottom:20px}
+.score-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.score-btns button{padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all 0.2s}
+.btn-retry{background:var(--accent);border:none;color:#fff}
+.btn-retry:hover{opacity:0.85}
+.btn-other{background:none;border:1.5px solid var(--border);color:var(--text)}
+.btn-other:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── GAMES ── */
+.games-hero{padding:50px 28px 30px;max-width:1100px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.games-hero h2{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,52px);font-weight:800;letter-spacing:-1px;line-height:1}
+.games-hero h2 span{color:var(--accent2)}
+.games-search-row{display:flex;gap:10px}
+#searchBar{background:var(--card);border:1.5px solid var(--border);color:var(--text);padding:10px 16px;border-radius:30px;font-size:14px;font-family:'Space Grotesk',sans-serif;width:200px;outline:none;transition:border-color 0.2s}
+#searchBar:focus{border-color:var(--accent)}
+#searchBar::placeholder{color:var(--muted)}
+#sortOptions{background:var(--card);border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:30px;font-size:14px;font-family:'Space Grotesk',sans-serif;outline:none;cursor:pointer}
+.games-body{max-width:1100px;margin:0 auto;padding:0 28px 80px}
+.section-heading{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;margin-top:8px}
+#featuredZones{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:36px}
+#container{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.zone-item{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column}
+.zone-item:hover{transform:translateY(-3px);border-color:#444466;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.zone-item img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.zone-item button{background:none;color:var(--text);border:none;padding:10px 8px;cursor:pointer;font-weight:600;font-size:12px;flex-grow:1;min-height:46px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.3;font-family:'Space Grotesk',sans-serif}
+
+/* ── ZONE VIEWER ── */
+#zoneViewer{position:fixed;inset:0;background:#000;z-index:1000;display:none;flex-direction:column}
+.zv-bar{display:flex;align-items:center;justify-content:space-between;background:#0d0d14;border-bottom:1px solid var(--border);padding:10px 16px;flex-shrink:0;gap:10px}
+.zv-title{font-weight:700;font-size:14px}
+.zv-author{font-size:12px;color:var(--muted);text-decoration:none}
+.zv-controls{display:flex;gap:8px;flex-shrink:0}
+.zv-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:'Space Grotesk',sans-serif;transition:all 0.2s}
+.zv-btn:hover{border-color:var(--accent);color:var(--accent)}
+#zoneFrame{flex:1;border:none;width:100%;height:100%}
+
+/* ── POPUP ── */
+#popupOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px)}
+.popup-box{background:var(--card);border:1px solid var(--border);border-radius:20px;width:90%;max-width:440px;overflow:hidden}
+.popup-hdr{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.popup-hdr h3{font-weight:700;font-size:16px}
+.popup-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:0}
+#popupBody{padding:20px;color:var(--text);font-size:14px;line-height:1.7;max-height:60vh;overflow-y:auto}
+#popupBody a{color:var(--accent)}
+.pop-btn{display:block;width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;margin-bottom:10px;transition:opacity 0.2s}
+.pop-btn:hover{opacity:0.85}
+.pop-btn.outline{background:none;border:1.5px solid var(--border);color:var(--text)}
+.pop-btn.outline:hover{border-color:var(--accent);color:var(--accent)}
+#popupBody input{width:100%;background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;font-family:'Space Grotesk',sans-serif;outline:none;margin-bottom:12px}
+#popupBody input:focus{border-color:var(--accent)}
+#popupBody label{display:block;font-size:12px;font-weight:700;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+
+/* ── FOOTER ── */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:20px;text-align:center;font-size:13px;color:var(--muted);position:relative;z-index:1}
+.footer-links{display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+.footer-links a,.footer-links label{color:var(--muted);text-decoration:none;cursor:pointer;transition:color 0.2s}
+.footer-links a:hover,.footer-links label:hover{color:var(--text)}
+
+@media(max-width:600px){
+  nav{padding:0 14px}
+  .games-hero{padding:36px 16px 20px}
+  .games-body{padding:0 16px 60px}
+  .subject-grid{padding:0 16px 40px}
+}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo" id="logoBtn">
+    <div class="logo-dot" id="logoDot"></div>
+    Corte's Learning
+    <span class="logo-hint" id="logoHint"></span>
+  </div>
+  <div class="nav-mid">
+    <button class="nav-btn active" id="learnNavBtn" onclick="showPage('learn',this)">Learning</button>
+    <button class="nav-btn" id="gamesNavBtn" onclick="showPage('games',this)">🎮 Games</button>
+  </div>
+  <div class="nav-right">
+    <button class="nav-btn" onclick="openSettings()">Settings</button>
+  </div>
+</nav>
+
+<!-- LEARN PAGE -->
+<div class="page active" id="page-learn">
+  <div class="learn-hero">
+    <h1>Learn Smarter,<br><span>Not Harder.</span></h1>
+    <p>Pick a subject, answer real questions, earn your streak. Games unlock after you learn!</p>
+  </div>
+  <div class="subject-grid" id="subjectGrid"></div>
+</div>
+
+<!-- QUIZ PAGE -->
+<div class="page" id="page-quiz">
+  <div class="quiz-wrap">
+    <button class="quiz-back" onclick="showPage('learn',document.getElementById('learnNavBtn'))">← Back to subjects</button>
+    <div class="quiz-subject-label" id="quizSubjectLabel">Math</div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill" style="width:0%"></div></div>
+    <div id="quizMain">
+      <div class="quiz-q" id="quizQuestion"></div>
+      <div class="quiz-hint" id="quizHintText"></div>
+      <div class="quiz-choices" id="quizChoices"></div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <button class="quiz-next" id="quizNext" onclick="nextQuestion()">Next Question →</button>
+    </div>
+    <div class="score-card" id="scoreCard">
+      <div class="score-num" id="scoreNum">0</div>
+      <div class="score-label" id="scoreLabel">out of 10</div>
+      <div class="score-msg" id="scoreMsg"></div>
+      <div class="score-btns">
+        <button class="score-btns btn-retry" onclick="startQuiz(currentSubject)" style="padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;cursor:pointer;background:var(--accent);border:none;color:#fff;font-family:'Space Grotesk',sans-serif">Try Again</button>
+        <button class="score-btns btn-other" onclick="showPage('learn',document.getElementById('learnNavBtn'))" style="padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;cursor:pointer;background:none;border:1.5px solid var(--border);color:var(--text);font-family:'Space Grotesk',sans-serif">Other Subjects</button>
+        <button class="score-btns btn-other" onclick="unlockAndGoGames()" style="padding:12px 24px;border-radius:30px;font-size:14px;font-weight:700;cursor:pointer;background:none;border:1.5px solid var(--accent2);color:var(--accent2);font-family:'Space Grotesk',sans-serif">Play Games 🎮</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAMES PAGE -->
+<div class="page" id="page-games">
+  <div class="games-hero">
+    <div>
+      <h2>Game<br><span>Zone</span></h2>
+      <p style="color:var(--muted);font-size:14px;margin-top:8px">Click any game to play — no downloads</p>
+    </div>
+    <div class="games-search-row">
+      <input type="text" id="searchBar" placeholder="Search games..." oninput="filterZones()">
+      <select id="sortOptions" onchange="sortZones()">
+        <option value="popular">Popular</option>
+        <option value="name">A–Z</option>
+        <option value="id">Newest</option>
+      </select>
+    </div>
+  </div>
+  <div class="games-body">
+    <div id="featuredWrapper">
+      <div class="section-heading">Featured</div>
+      <div id="featuredZones"></div>
+    </div>
+    <div class="section-heading">All Games</div>
+    <div id="container">Loading games...</div>
+  </div>
+</div>
+
+<!-- ZONE VIEWER -->
+<div id="zoneViewer">
+  <div class="zv-bar">
+    <div>
+      <div class="zv-title" id="zoneName"></div>
+      <a class="zv-author" id="zoneAuthor" href="#" target="_blank"></a>
+      <span id="zoneId" style="display:none"></span>
+    </div>
+    <div class="zv-controls">
+      <button class="zv-btn" onclick="fullscreenZone()">⛶ Fullscreen</button>
+      <button class="zv-btn" onclick="aboutBlank()">↗ New Tab</button>
+      <button class="zv-btn" onclick="closeZone()">✕ Close</button>
+    </div>
+  </div>
+  <iframe id="zoneFrame"></iframe>
+</div>
+
+<!-- POPUP -->
+<div id="popupOverlay" onclick="e=>{if(e.target===this)closePopup()}">
+  <div class="popup-box">
+    <div class="popup-hdr">
+      <h3 id="popupTitle">Settings</h3>
+      <button class="popup-close" onclick="closePopup()">×</button>
+    </div>
+    <div id="popupBody"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links" style="margin-bottom:8px">
+    <a href="#" onclick="showContact();return false">Contact</a>
+    <a href="#" onclick="loadPrivacy();return false">Privacy Policy</a>
+    <a href="javascript:saveData()">Export Data</a>
+    <label for="importData">Import Data</label>
+    <input type="file" id="importData" style="display:none" onchange="loadData(event)">
+  </div>
+  <div style="margin-top:6px">© 2025 Corte's Learning Hub</div>
+</footer>
+
+<script>
+/* ── STARS ── */
+(function(){
+  const c=document.getElementById('stars');
+  for(let i=0;i<120;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*2+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*6).toFixed(1)}s`;
+    c.appendChild(s);
+  }
+})();
+
+/* ── SUBJECTS ── */
+const subjects=[
+  {id:'math',label:'Mathematics',icon:'📐',desc:'Algebra, fractions, geometry & more. Level up your number skills.',tag:'10 Questions',glow:'#6c63ff',glowBorder:'#6c63ff55',tagBg:'#1e1a40',tagText:'#9d97ff'},
+  {id:'reading',label:'Reading & Writing',icon:'📖',desc:'Comprehension, grammar, vocabulary and literary analysis.',tag:'10 Questions',glow:'#43e97b',glowBorder:'#43e97b55',tagBg:'#0e2d1a',tagText:'#43e97b'},
+  {id:'science',label:'Science',icon:'🔬',desc:'Physics, biology, chemistry and earth science fundamentals.',tag:'10 Questions',glow:'#00d2ff',glowBorder:'#00d2ff55',tagBg:'#0b1e2d',tagText:'#00d2ff'},
+  {id:'history',label:'Social Studies',icon:'🌍',desc:'World history, geography, civics and cultures.',tag:'10 Questions',glow:'#ff9a44',glowBorder:'#ff9a4455',tagBg:'#2d1a0a',tagText:'#ff9a44'},
+  {id:'coding',label:'Coding & Logic',icon:'💻',desc:'Programming concepts, algorithms and logical thinking.',tag:'10 Questions',glow:'#ff6584',glowBorder:'#ff658455',tagBg:'#2d0e18',tagText:'#ff6584'},
+  {id:'vocab',label:'Word Power',icon:'🔤',desc:'Expand your vocabulary with fun word challenges and spelling.',tag:'10 Questions',glow:'#a78bfa',glowBorder:'#a78bfa55',tagBg:'#1a1040',tagText:'#c4b5fd'},
+];
+
+const subjectGrid=document.getElementById('subjectGrid');
+subjects.forEach(s=>{
+  const d=document.createElement('div');
+  d.className='subject-card';
+  d.style.setProperty('--glow',s.glow);
+  d.style.setProperty('--glow-border',s.glowBorder);
+  d.style.setProperty('--tag-bg',s.tagBg);
+  d.style.setProperty('--tag-text',s.tagText);
+  d.innerHTML=`<span class="icon">${s.icon}</span><h3>${s.label}</h3><p>${s.desc}</p><span class="tag">${s.tag}</span>`;
+  d.onclick=()=>startQuiz(s.id);
+  subjectGrid.appendChild(d);
+});
+
+/* ── QUIZ DATA ── */
+const quizData={
+  math:[
+    {q:"What is 7 × 8?",choices:["54","56","63","48"],ans:1,exp:"7 × 8 = 56. A trick: 7 × 8 = 56, just remember '5, 6, 7, 8'!"},
+    {q:"Solve for x: 3x + 5 = 20",choices:["x = 3","x = 5","x = 8","x = 15"],ans:1,exp:"Subtract 5 from both sides: 3x = 15, then divide by 3: x = 5."},
+    {q:"What is 25% of 80?",choices:["15","20","25","40"],ans:1,exp:"25% = 1/4. 80 ÷ 4 = 20."},
+    {q:"What is the area of a rectangle 6cm × 9cm?",choices:["30 cm²","45 cm²","54 cm²","63 cm²"],ans:2,exp:"Area = length × width = 6 × 9 = 54 cm²."},
+    {q:"Which is a prime number?",choices:["9","15","17","21"],ans:2,exp:"17 is prime — only divisible by 1 and itself. 9=3×3, 15=3×5, 21=3×7."},
+    {q:"What is √144?",choices:["11","12","13","14"],ans:1,exp:"12 × 12 = 144, so √144 = 12."},
+    {q:"0.75 written as a fraction is:",choices:["3/5","2/3","3/4","4/5"],ans:2,exp:"0.75 = 75/100 = 3/4. Divide numerator and denominator by 25."},
+    {q:"What is the perimeter of a square with side 7m?",choices:["14m","21m","28m","49m"],ans:2,exp:"Perimeter = 4 × side = 4 × 7 = 28m."},
+    {q:"Simplify: 18/24",choices:["2/3","3/4","4/5","5/6"],ans:1,exp:"GCF of 18 and 24 is 6. 18÷6=3, 24÷6=4. Answer: 3/4."},
+    {q:"If a train travels 60 mph for 2.5 hours, how far does it travel?",choices:["120 miles","140 miles","150 miles","180 miles"],ans:2,exp:"Distance = speed × time = 60 × 2.5 = 150 miles."},
+  ],
+  reading:[
+    {q:"What does the word 'benevolent' mean?",choices:["Cruel and harsh","Kind and generous","Brave and bold","Shy and quiet"],ans:1,exp:"Benevolent comes from Latin 'bene' (well) + 'volent' (wishing). It means kind and generous."},
+    {q:"Which sentence uses a comma correctly?",choices:["I like cats dogs and fish.","I like cats, dogs, and fish.","I like, cats dogs and fish.","I, like cats dogs and fish."],ans:1,exp:"Items in a list are separated by commas. 'cats, dogs, and fish' is correct."},
+    {q:"What literary device is 'The wind whispered through the trees'?",choices:["Simile","Metaphor","Personification","Hyperbole"],ans:2,exp:"Personification gives human qualities (whispering) to non-human things (wind)."},
+    {q:"What is the main purpose of a thesis statement?",choices:["To list facts","To state the main argument","To conclude the essay","To give background info"],ans:1,exp:"A thesis statement presents the central claim or argument of the entire essay."},
+    {q:"Which word is a synonym for 'enormous'?",choices:["Tiny","Average","Gigantic","Narrow"],ans:2,exp:"Enormous and gigantic both mean very large. Synonyms share similar meanings."},
+    {q:"'She ran faster than the wind' is an example of:",choices:["Alliteration","Metaphor","Simile","Onomatopoeia"],ans:2,exp:"A simile compares two things using 'like' or 'than'. Here, her speed is compared to wind."},
+    {q:"What does 'protagonist' mean?",choices:["The villain","The narrator","The main character","A minor character"],ans:2,exp:"The protagonist is the central character the story follows — often the hero."},
+    {q:"Which sentence is in the passive voice?",choices:["The dog bit the man.","The man was bitten by the dog.","The man ran from the dog.","The dog chased the man."],ans:1,exp:"Passive voice: the subject receives the action. 'The man was bitten' — the man had something done to him."},
+    {q:"What does 'context clues' mean in reading?",choices:["Looking words up in a dictionary","Using surrounding text to understand a word","Asking the teacher","Skipping unknown words"],ans:1,exp:"Context clues are hints within the surrounding text that help you figure out the meaning of an unfamiliar word."},
+    {q:"Which is an example of alliteration?",choices:["The sky is blue","Peter Piper picked peppers","She cried a river","Time flew by"],ans:1,exp:"Alliteration is the repetition of the same initial sound. 'Peter Piper picked' all start with 'P'."},
+  ],
+  science:[
+    {q:"What is the chemical symbol for water?",choices:["WA","HO","H₂O","W₂O"],ans:2,exp:"Water is two hydrogen atoms bonded to one oxygen atom: H₂O."},
+    {q:"Which planet is closest to the Sun?",choices:["Venus","Earth","Mars","Mercury"],ans:3,exp:"Mercury is the innermost planet of our solar system, closest to the Sun."},
+    {q:"What do plants use to make food through photosynthesis?",choices:["Oxygen and water","CO₂, water, and sunlight","Nitrogen and soil","Heat and minerals"],ans:1,exp:"Photosynthesis: CO₂ + H₂O + sunlight → glucose + oxygen."},
+    {q:"What is the speed of light (approx)?",choices:["300 km/s","3,000 km/s","300,000 km/s","3,000,000 km/s"],ans:2,exp:"Light travels approximately 300,000 km per second (186,000 miles/s) in a vacuum."},
+    {q:"What is Newton's First Law of Motion?",choices:["F=ma","Objects in motion stay in motion unless acted upon","Energy cannot be created","Action equals reaction"],ans:1,exp:"Newton's First Law (Inertia): an object at rest stays at rest, and an object in motion stays in motion unless acted on by an external force."},
+    {q:"Which part of the cell contains DNA?",choices:["Mitochondria","Cell membrane","Nucleus","Ribosome"],ans:2,exp:"The nucleus is the 'control center' of the cell and contains the cell's DNA."},
+    {q:"What gas do humans exhale?",choices:["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],ans:2,exp:"We inhale oxygen and exhale carbon dioxide (CO₂) as a byproduct of cellular respiration."},
+    {q:"What is the powerhouse of the cell?",choices:["Nucleus","Ribosome","Mitochondria","Golgi apparatus"],ans:2,exp:"Mitochondria produce ATP energy for the cell through cellular respiration — hence 'powerhouse of the cell'."},
+    {q:"Which state of matter has no definite shape or volume?",choices:["Solid","Liquid","Gas","Plasma"],ans:2,exp:"Gases expand to fill any container — they have neither fixed shape nor fixed volume."},
+    {q:"What force keeps planets in orbit around the Sun?",choices:["Magnetism","Friction","Gravity","Electricity"],ans:2,exp:"Gravity is the attractive force between masses. The Sun's massive gravity keeps planets in elliptical orbits."},
+  ],
+  history:[
+    {q:"In which year did World War II end?",choices:["1943","1944","1945","1946"],ans:2,exp:"WWII ended in 1945: Germany surrendered in May (V-E Day) and Japan in September (V-J Day)."},
+    {q:"Who wrote the Declaration of Independence?",choices:["George Washington","Benjamin Franklin","Thomas Jefferson","John Adams"],ans:2,exp:"Thomas Jefferson was the primary author of the Declaration of Independence in 1776."},
+    {q:"Which ancient wonder was located in Alexandria?",choices:["Colossus of Rhodes","Lighthouse of Alexandria","Hanging Gardens","Pyramids of Giza"],ans:1,exp:"The Lighthouse of Alexandria (Pharos) stood on an island in Alexandria's harbor."},
+    {q:"What document ended slavery in the United States?",choices:["Bill of Rights","Emancipation Proclamation","Constitution","Declaration of Independence"],ans:1,exp:"President Lincoln issued the Emancipation Proclamation in 1863, declaring enslaved people in rebel states free."},
+    {q:"Which civilization built Machu Picchu?",choices:["Aztec","Maya","Inca","Olmec"],ans:2,exp:"Machu Picchu was built by the Inca civilization around 1450 CE in present-day Peru."},
+    {q:"The Berlin Wall fell in which year?",choices:["1985","1987","1989","1991"],ans:2,exp:"The Berlin Wall fell on November 9, 1989, marking the end of the Cold War division of Germany."},
+    {q:"Who was the first President of the United States?",choices:["John Adams","Abraham Lincoln","Thomas Jefferson","George Washington"],ans:3,exp:"George Washington served as the first U.S. President from 1789 to 1797."},
+    {q:"What sea did Moses famously part, according to the Bible?",choices:["Mediterranean Sea","Dead Sea","Red Sea","Caspian Sea"],ans:2,exp:"According to the Book of Exodus, Moses parted the Red Sea to lead the Israelites out of Egypt."},
+    {q:"The Renaissance began in which country?",choices:["France","England","Germany","Italy"],ans:3,exp:"The Renaissance (14th–17th century) began in Italy, particularly in Florence, fueled by wealthy patrons like the Medici family."},
+    {q:"Which empire was ruled by Julius Caesar?",choices:["Greek Empire","Roman Empire","Ottoman Empire","British Empire"],ans:1,exp:"Julius Caesar was a Roman general and statesman who became dictator of the Roman Empire."},
+  ],
+  coding:[
+    {q:"What does 'if/else' do in code?",choices:["Repeats code","Makes a decision","Stores data","Defines a function"],ans:1,exp:"An if/else statement checks a condition: if true, run one block; else, run another. It's decision-making in code."},
+    {q:"What is a 'loop' in programming?",choices:["A type of variable","Code that repeats","A data structure","An error message"],ans:1,exp:"A loop repeats a block of code multiple times — either a set number of times (for loop) or while a condition is true (while loop)."},
+    {q:"What does HTML stand for?",choices:["Hyper Transfer Markup Language","HyperText Markup Language","High Text Making Language","Hyper Type Matching Logic"],ans:1,exp:"HTML = HyperText Markup Language. It's the standard language for creating web pages."},
+    {q:"In binary, what does '1010' equal in decimal?",choices:["8","9","10","12"],ans:2,exp:"1010 in binary: 1×8 + 0×4 + 1×2 + 0×1 = 8+0+2+0 = 10."},
+    {q:"What is a 'variable' in programming?",choices:["A type of error","A named storage for data","A repeating loop","A web design tool"],ans:1,exp:"A variable is a named container that stores data. For example: x = 5 stores the value 5 in a variable called x."},
+    {q:"What does CSS stand for?",choices:["Computer Style Sheets","Cascading Style Sheets","Creative Styling Software","Coded Style System"],ans:1,exp:"CSS = Cascading Style Sheets. It controls the visual appearance (colors, fonts, layout) of HTML web pages."},
+    {q:"What is a 'function' in code?",choices:["A stored number","A reusable block of code","A loop counter","An error type"],ans:1,exp:"A function is a reusable block of code that performs a specific task. You define it once and call it many times."},
+    {q:"What symbol is used for comments in Python?",choices:["//","/* */","#","--"],ans:2,exp:"In Python, comments start with #. Everything after # on that line is ignored by the computer."},
+    {q:"Which data type stores True/False values?",choices:["Integer","String","Float","Boolean"],ans:3,exp:"A Boolean stores only two values: True or False. Named after mathematician George Boole."},
+    {q:"What does an algorithm do?",choices:["Stores data on servers","Provides step-by-step instructions to solve a problem","Designs websites","Connects computers"],ans:1,exp:"An algorithm is a set of step-by-step instructions to solve a problem or accomplish a task — like a recipe for code."},
+  ],
+  vocab:[
+    {q:"What does 'ambiguous' mean?",choices:["Crystal clear","Open to multiple interpretations","Completely wrong","Very boring"],ans:1,exp:"Ambiguous means having more than one possible meaning or interpretation — it's unclear or uncertain."},
+    {q:"Choose the correct spelling:",choices:["Recieve","Receive","Receve","Receeve"],ans:1,exp:"Remember 'i before e except after c' — so re-C-eive, not recieve."},
+    {q:"What does the prefix 'un-' mean?",choices:["Before","After","Not/opposite","Again"],ans:2,exp:"The prefix 'un-' means 'not' or 'opposite of' — unhappy means not happy, undo means reverse doing."},
+    {q:"Which word means the opposite of 'ancient'?",choices:["Old","Historic","Modern","Antique"],ans:2,exp:"Ancient means very old. Its antonym (opposite) is modern — meaning new or current."},
+    {q:"What does 'eloquent' mean?",choices:["Clumsy with words","Speaking fluently and persuasively","Very loud","Extremely shy"],ans:1,exp:"Eloquent means expressing yourself clearly, fluently, and persuasively — an eloquent speaker captivates their audience."},
+    {q:"What does the suffix '-ology' mean?",choices:["Fear of","Study of","Lover of","Against"],ans:1,exp:"'-ology' means 'the study of' — biology = study of life, geology = study of Earth, psychology = study of the mind."},
+    {q:"What does 'meticulous' mean?",choices:["Very careless","Giving careful attention to detail","Extremely fast","Quite loud"],ans:1,exp:"Meticulous means showing great attention to detail and being very careful and precise."},
+    {q:"Which word is an antonym of 'expand'?",choices:["Grow","Enlarge","Shrink","Increase"],ans:2,exp:"Antonyms are opposites. Expand means to grow larger; its antonym is shrink/contract/reduce."},
+    {q:"What does 'perseverance' mean?",choices:["Giving up easily","Continued effort despite difficulty","Moving very quickly","Being extremely talented"],ans:1,exp:"Perseverance means continuing to work hard toward a goal despite obstacles or setbacks — grit and determination."},
+    {q:"'Photograph' comes from Greek roots meaning:",choices:["Fast image","Light writing","Color picture","Dark room"],ans:1,exp:"Photo = light (Greek), graph = writing/drawing. Photography literally means 'writing with light'."},
+  ],
+};
+
+/* ── QUIZ ENGINE ── */
+let currentSubject='math',currentQuiz=[],currentQ=0,score=0,answered=false;
+
+function startQuiz(subjectId){
+  currentSubject=subjectId;
+  const s=subjects.find(x=>x.id===subjectId);
+  document.getElementById('quizSubjectLabel').textContent=s?s.label:subjectId;
+  document.getElementById('quizSubjectLabel').style.color=s?s.glow:'var(--accent)';
+  currentQuiz=[...quizData[subjectId]].sort(()=>Math.random()-0.5).slice(0,10);
+  currentQ=0;score=0;answered=false;
+  document.getElementById('scoreCard').classList.remove('show');
+  document.getElementById('quizMain').style.display='block';
+  renderQuestion();
+  showPage('quiz',null);
+}
+
+function renderQuestion(){
+  const q=currentQuiz[currentQ];
+  const total=currentQuiz.length;
+  document.getElementById('quizProgressFill').style.width=((currentQ/total)*100)+'%';
+  document.getElementById('quizQuestion').textContent=(currentQ+1)+'. '+q.q;
+  document.getElementById('quizHintText').textContent='Question '+(currentQ+1)+' of '+total;
+  const letters=['A','B','C','D'];
+  const container=document.getElementById('quizChoices');
+  container.innerHTML='';
+  answered=false;
+  document.getElementById('quizFeedback').classList.remove('show','correct','wrong');
+  document.getElementById('quizNext').style.display='none';
+  q.choices.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='choice-btn';
+    btn.innerHTML=`<span class="letter">${letters[i]}</span>${c}`;
+    btn.onclick=()=>answerQ(i,q.ans,q.exp);
+    container.appendChild(btn);
+  });
+}
+
+function answerQ(chosen,correct,exp){
+  if(answered)return;
+  answered=true;
+  const btns=document.querySelectorAll('.choice-btn');
+  btns.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct)b.classList.add('correct');
+    if(i===chosen&&chosen!==correct)b.classList.add('wrong');
+  });
+  const fb=document.getElementById('quizFeedback');
+  fb.classList.add('show');
+  if(chosen===correct){
+    score++;
+    fb.className='quiz-feedback show correct';
+    fb.innerHTML='✓ Correct! '+exp;
+  } else {
+    fb.className='quiz-feedback show wrong';
+    fb.innerHTML='✗ Not quite. '+exp;
+  }
+  document.getElementById('quizNext').style.display='block';
+}
+
+function nextQuestion(){
+  currentQ++;
+  if(currentQ>=currentQuiz.length){
+    showScore();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showScore(){
+  document.getElementById('quizMain').style.display='none';
+  document.getElementById('quizProgressFill').style.width='100%';
+  const sc=document.getElementById('scoreCard');
+  sc.classList.add('show');
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreLabel').textContent='out of '+currentQuiz.length;
+  const pct=score/currentQuiz.length;
+  let msg='';
+  if(pct===1)msg='🏆 Perfect score! Incredible!';
+  else if(pct>=0.8)msg='🌟 Amazing work! You crushed it!';
+  else if(pct>=0.6)msg='👍 Good job! Keep practicing!';
+  else if(pct>=0.4)msg='📚 Keep going — you\'re learning!';
+  else msg='💪 Don\'t give up — try again!';
+  document.getElementById('scoreMsg').textContent=msg;
+}
+
+function unlockAndGoGames(){
+  unlockGames();
+  showPage('games',document.getElementById('gamesNavBtn'));
+}
+
+/* ── 3-CLICK LOGO SECRET ── */
+let logoClicks=0,logoTimer=null;
+const logoDot=document.getElementById('logoDot');
+const logoHint=document.getElementById('logoHint');
+
+document.getElementById('logoBtn').addEventListener('click',function(){
+  logoClicks++;
+  clearTimeout(logoTimer);
+  if(logoClicks>=3){
+    logoClicks=0;
+    logoHint.textContent='';
+    logoHint.classList.remove('show');
+    logoDot.style.background='var(--accent2)';
+    setTimeout(()=>logoDot.style.background='var(--accent)',600);
+    unlockGames();
+    showPage('games',document.getElementById('gamesNavBtn'));
+  } else {
+    const left=3-logoClicks;
+    logoHint.textContent=left+' more click'+(left>1?'s':'')+'…';
+    logoHint.classList.add('show');
+    logoTimer=setTimeout(()=>{
+      logoClicks=0;
+      logoHint.classList.remove('show');
+    },2500);
+  }
+});
+
+function unlockGames(){
+  document.getElementById('gamesNavBtn').style.display='inline-flex';
+}
+
+/* ── PAGE SWITCHING ── */
+function showPage(name,tabBtn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(tabBtn)tabBtn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ── GAMES ENGINE ── */
+const zonesURL='https://cdn.jsdelivr.net/gh/gn-math/assets@main/zones.json';
+const coverURL='https://cdn.jsdelivr.net/gh/gn-math/covers@main';
+const htmlURL='https://cdn.jsdelivr.net/gh/gn-math/html@main';
+let zones=[],popularityData={};
+let zoneFrame=document.getElementById('zoneFrame');
+const container=document.getElementById('container');
+const featuredContainer=document.getElementById('featuredZones');
+
+async function listZones(){
+  try{
+    const r=await fetch(zonesURL+'?t='+Date.now());
+    zones=await r.json();
+    if(zones.length>0)zones[0].featured=true;
+    await fetchPopularity();
+    sortZones();
+  }catch(e){container.innerHTML='<p style="color:var(--muted);padding:20px">Error loading games: '+e+'</p>';}
+}
+
+async function fetchPopularity(){
+  try{
+    const r=await fetch('https://data.jsdelivr.com/v1/stats/packages/gh/gn-math/html@main/files?period=year');
+    const data=await r.json();
+    data.forEach(f=>{const m=f.name.match(/\/(\d+)\.html$/);if(m)popularityData[parseInt(m[1])]=f.hits.total;});
+  }catch(e){}
+}
+
+function sortZones(){
+  const s=document.getElementById('sortOptions').value;
+  if(s==='name')zones.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(s==='id')zones.sort((a,b)=>b.id-a.id);
+  else zones.sort((a,b)=>(popularityData[b.id]||0)-(popularityData[a.id]||0));
+  zones.sort((a,b)=>(a.id===-1?-1:b.id===-1?1:0));
+  displayFeaturedZones(zones.filter(z=>z.featured));
+  displayZones(zones);
+}
+
+function makeCard(file,target){
+  const d=document.createElement('div');
+  d.className='zone-item';
+  d.onclick=()=>openZone(file);
+  const img=document.createElement('img');
+  img.dataset.src=file.cover.replace('{COVER_URL}',coverURL).replace('{HTML_URL}',htmlURL);
+  img.alt=file.name;img.className='lz';img.style.background='var(--card)';
+  const btn=document.createElement('button');
+  btn.textContent=file.name;
+  btn.onclick=e=>{e.stopPropagation();openZone(file);};
+  d.appendChild(img);d.appendChild(btn);
+  target.appendChild(d);
+}
+
+function lazyLoad(scope){
+  const imgs=scope.querySelectorAll('img.lz');
+  const obs=new IntersectionObserver((entries,o)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.src=e.target.dataset.src;e.target.classList.remove('lz');o.unobserve(e.target);}});
+  },{rootMargin:'150px',threshold:0});
+  imgs.forEach(i=>obs.observe(i));
+}
+
+function displayFeaturedZones(list){
+  featuredContainer.innerHTML='';
+  if(!list.length){document.getElementById('featuredWrapper').style.display='none';return;}
+  document.getElementById('featuredWrapper').style.display='block';
+  list.forEach(f=>makeCard(f,featuredContainer));
+  lazyLoad(featuredContainer);
+}
+
+function displayZones(list){
+  container.innerHTML='';
+  if(!list.length){container.innerHTML='<p style="color:var(--muted)">No games found.</p>';return;}
+  list.forEach(f=>makeCard(f,container));
+  lazyLoad(container);
+}
+
+function filterZones(){
+  const q=document.getElementById('searchBar').value.toLowerCase();
+  if(!q){sortZones();return;}
+  displayZones(zones.filter(z=>z.name.toLowerCase().includes(q)));
+  document.getElementById('featuredWrapper').style.display='none';
+}
+
+function openZone(file){
+  if(file.url.startsWith('http')){window.open(file.url,'_blank');return;}
+  const url=file.url.replace('{COVER_URL}',coverURL).replace('{HTML_URL}',htmlURL);
+  fetch(url+'?t='+Date.now()).then(r=>r.text()).then(html=>{
+    try{
+      if(!zoneFrame.contentDocument){
+        zoneFrame=document.createElement('iframe');
+        zoneFrame.id='zoneFrame';
+        document.getElementById('zoneViewer').appendChild(zoneFrame);
+      }
+      zoneFrame.contentDocument.open();
+      zoneFrame.contentDocument.write(html);
+      zoneFrame.contentDocument.close();
+    }catch(e){zoneFrame.src='about:blank';setTimeout(()=>{zoneFrame.contentDocument.write(html);zoneFrame.contentDocument.close();},50);}
+    document.getElementById('zoneName').textContent=file.name;
+    document.getElementById('zoneId').textContent=file.id;
+    document.getElementById('zoneAuthor').textContent='by '+file.author;
+    if(file.authorLink)document.getElementById('zoneAuthor').href=file.authorLink;
+    document.getElementById('zoneViewer').style.display='flex';
+    const u=new URL(window.location);u.searchParams.set('id',file.id);history.pushState(null,'',u);
+  }).catch(e=>alert('Could not load game: '+e));
+}
+
+function closeZone(){
+  document.getElementById('zoneViewer').style.display='none';
+  try{document.getElementById('zoneViewer').removeChild(zoneFrame);}catch(e){}
+  const u=new URL(window.location);u.searchParams.delete('id');history.pushState(null,'',u);
+}
+
+function fullscreenZone(){
+  const f=document.getElementById('zoneFrame');
+  (f.requestFullscreen||f.mozRequestFullScreen||f.webkitRequestFullscreen||f.msRequestFullscreen||function(){}).call(f);
+}
+
+function aboutBlank(){
+  const w=window.open('about:blank','_blank');
+  const zid=document.getElementById('zoneId').textContent;
+  const z=zones.find(z=>z.id+''===zid);
+  if(!z)return;
+  fetch(z.url.replace('{HTML_URL}',htmlURL)+'?t='+Date.now()).then(r=>r.text()).then(html=>{
+    if(w){w.document.open();w.document.write(html);w.document.close();}
+  });
+}
+
+/* ── SETTINGS & POPUPS ── */
+function openSettings(){
+  document.getElementById('popupTitle').textContent='Settings';
+  document.getElementById('popupBody').innerHTML=`
+    <button class="pop-btn" onclick="document.body.style.filter=document.body.style.filter?'':'invert(1) hue-rotate(180deg)'">Toggle Light/Dark</button>
+    <button class="pop-btn outline" onclick="tabCloak()">Tab Cloak</button>
+  `;
+  document.getElementById('popupOverlay').style.display='flex';
+}
+
+function tabCloak(){
+  closePopup();
+  document.getElementById('popupTitle').textContent='Tab Cloak';
+  document.getElementById('popupBody').innerHTML=`
+    <label>Tab Title</label>
+    <input type="text" placeholder="New title..." oninput="document.title=this.value||'Corte\\'s Learning Hub'">
+    <label>Tab Icon URL</label>
+    <input type="text" placeholder="https://... icon url" oninput="document.querySelector('link[rel*=icon]')&&(document.querySelector('link[rel*=icon]').href=this.value)">
+  `;
+  document.getElementById('popupOverlay').style.display='flex';
+}
+
+function closePopup(){document.getElementById('popupOverlay').style.display='none';}
+document.getElementById('popupOverlay').addEventListener('click',function(e){if(e.target===this)closePopup();});
+
+function showContact(){
+  document.getElementById('popupTitle').textContent='Contact';
+  document.getElementById('popupBody').innerHTML=`<p>Discord: <a href="https://discord.gg/NAFw4ykZ7n" target="_blank">discord.gg/NAFw4ykZ7n</a></p><p style="margin-top:10px">Email: gn.math.business@gmail.com</p>`;
+  document.getElementById('popupOverlay').style.display='flex';
+}
+
+function loadPrivacy(){
+  document.getElementById('popupTitle').textContent='Privacy Policy';
+  document.getElementById('popupBody').innerHTML=`<p>Last updated April 17, 2025. This site may collect basic usage analytics to improve services. We do not sell or share your personal information with third parties. Contact us on Discord for any questions.</p>`;
+  document.getElementById('popupOverlay').style.display='flex';
+}
+
+function saveData(){
+  const data=JSON.stringify(localStorage)+'\n\n|\n\n'+document.cookie;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([data],{type:'text/plain'}));
+  a.download=Date.now()+'.data';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function loadData(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const[ls,ck]=e.target.result.split('\n\n|\n\n');
+    try{const p=JSON.parse(ls);for(let k in p)localStorage.setItem(k,p[k]);}catch(ex){}
+    if(ck)ck.split('; ').forEach(c=>{document.cookie=c;});
+    alert('Data loaded!');
+  };
+  reader.readAsText(file);
+}
+
+/* ── DEEP LINK ── */
+window.addEventListener('load',()=>{
+  const id=new URLSearchParams(window.location.search).get('id');
+  if(id&&zones.length){const z=zones.find(z=>z.id+''===id+'');if(z)openZone(z);}
+});
+
+listZones();
+</script>
+</body>
+</html>
